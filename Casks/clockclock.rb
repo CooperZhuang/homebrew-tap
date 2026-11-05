@@ -12,9 +12,17 @@ cask "clockclock" do
     strategy :github_latest
   end
 
-  depends_on macos: ">= :ventura"
+  depends_on macos: :ventura
 
   app "ClockClock.app"
+
+  # Homebrew 下载的 cask 会被打上 quarantine 标记；这个包是 ad-hoc 签名、没公证，
+  # 留着标记用户首次打开就会被 Gatekeeper 拦，这里装完抹掉（等同于 --no-quarantine）
+  postflight do
+    system_command "/usr/bin/xattr",
+                   args: ["-dr", "com.apple.quarantine", "#{appdir}/ClockClock.app"],
+                   print_stderr: false
+  end
 
   uninstall quit: "com.cooper.clockclock-menubar"
 
